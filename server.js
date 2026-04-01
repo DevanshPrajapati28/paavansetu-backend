@@ -8,10 +8,7 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors({
-  origin: "https://paavansetu-frontend-7znedei3i-devansh1234523s-projects.vercel.app",
-  credentials: true,
-}));
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
