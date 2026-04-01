@@ -9,7 +9,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: "https://paavansetu-frontend-7znedei3i-devansh1234523s-projects.vercel.app/",
   credentials: true,
 }));
 app.use(express.json());
