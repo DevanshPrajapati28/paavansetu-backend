@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const Contact = require('../models/Contact');
 const nodemailer = require('nodemailer');
 
 // ─── SMTP TRANSPORTER ─────────────────────────────────────
@@ -50,14 +49,8 @@ router.post('/', async (req, res) => {
       });
     }
 
-    // Save to DB
-    const contact = await Contact.create({
-      name,
-      email,
-      phone,
-      service,
-      message,
-    });
+    // ❌ Removed DB save
+    // const contact = await Contact.create({...});
 
     // Send email to YOU
     try {
@@ -103,7 +96,7 @@ router.post('/', async (req, res) => {
     res.status(201).json({
       success: true,
       message: "Thank you! We'll get back to you within 24 hours.",
-      data: contact,
+      data: { name, email, phone, service, message }, // return request data instead
     });
 
   } catch (err) {
@@ -116,21 +109,14 @@ router.post('/', async (req, res) => {
   }
 });
 
-// ─── GET (ADMIN) ──────────────────────────────────────────
+// ─── GET (REMOVED DB LOGIC) ───────────────────────────────
+// Since no database, this route is not useful anymore
 router.get('/', async (req, res) => {
-  try {
-    const contacts = await Contact.find().sort({ createdAt: -1 });
-
-    res.json({
-      success: true,
-      data: contacts,
-    });
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: err.message,
-    });
-  }
+  res.json({
+    success: true,
+    data: [],
+    message: 'No database connected',
+  });
 });
 
 module.exports = router;
