@@ -6,20 +6,10 @@ dotenv.config();
 
 const app = express();
 
-// ✅ CORS CONFIG (FIXED)
-const corsOptions = {
-  origin: "https://www.paavansetu.com",
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true
-};
-
-app.use(cors(corsOptions));
-
-// ✅ Handle preflight requests
-app.options("*", cors(corsOptions));
-
 // Middleware
+app.use(cors({
+  origin: "https://www.paavansetu.com"
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -32,7 +22,7 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Paavan SETU API running 🌟' });
 });
 
-// Start server
+// Start server (NO MongoDB)
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
