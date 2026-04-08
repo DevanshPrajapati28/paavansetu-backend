@@ -4,13 +4,10 @@ const nodemailer = require('nodemailer');
 
 // ─── SMTP TRANSPORTER ─────────────────────────────────────
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false,
-  family : 4 ,
+  service: 'gmail', // ✅ use service instead of host
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS, // App Password
+    pass: process.env.EMAIL_PASS,
   },
 });
 
