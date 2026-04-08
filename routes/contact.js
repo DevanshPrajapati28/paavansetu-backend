@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const nodemailer = require('nodemailer');
-const dns = require('dns');
 
 // ─── SMTP TRANSPORTER ─────────────────────────────────────
+const dns = require('dns');
+
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
   port: 587,
@@ -13,10 +14,9 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
   lookup: (hostname, options, callback) => {
-    return dns.lookup(hostname, { family: 4 }, callback); // Force IPv4
+    return dns.lookup(hostname, { family: 4 }, callback); // 🔥 FORCE IPv4
   },
 });
-
 // Verify transporter
 transporter.verify((error) => {
   if (error) {
@@ -53,64 +53,68 @@ router.post('/', async (req, res) => {
       });
     }
 
-    // ✅ SEND RESPONSE IMMEDIATELY (VERY IMPORTANT)
+    // ❌ Removed DB save
+    // const contact = await Contact.create({...});
+
+    // Send email to YOU
+    try {
+      await transporter.sendMail({
+        from: `"Contact Form" <${process.env.EMAIL_USER}>`,
+        to: process.env.EMAIL_USER,
+        subject: `New Contact - ${service || 'General'}`,
+        html: `
+          <h2>New Contact Submission</h2>
+          <p><b>Name:</b> ${name}</p>
+          <p><b>Phone:</b> ${phone}</p>
+          <p><b>Email:</b> ${email || 'N/A'}</p>
+          <p><b>Service:</b> ${service || 'N/A'}</p>
+          <p><b>Message:</b> ${message || 'N/A'}</p>
+        `,
+      });
+    } catch (err) {
+      console.error('Admin email failed:', err);
+    }
+
+    // Auto-reply
+    if (email) {
+      try {
+        await transporter.sendMail({
+          from: `"Career Hatch" <${process.env.EMAIL_USER}>`,
+          to: email,
+          subject: "We've received your message ✅",
+          html: `
+            <p>Hi ${name},</p>
+            <p>Thank you for reaching out. We'll get back within 24 hours.</p>
+            <br/>
+            <p><b>Your Message:</b></p>
+            <p>${message || 'N/A'}</p>
+            <br/>
+            <p>— Career Hatch Team</p>
+          `,
+        });
+      } catch (err) {
+        console.error('Auto-reply failed:', err);
+      }
+    }
+
     res.status(201).json({
       success: true,
       message: "Thank you! We'll get back to you within 24 hours.",
-      data: { name, email, phone, service, message },
+      data: { name, email, phone, service, message }, // return request data instead
     });
-
-    // ─── SEND EMAIL TO ADMIN (NON-BLOCKING) ─────────────────
-    transporter.sendMail({
-      from: `"Contact Form" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_USER,
-      subject: `New Contact - ${service || 'General'}`,
-      html: `
-        <h2>New Contact Submission</h2>
-        <p><b>Name:</b> ${name}</p>
-        <p><b>Phone:</b> ${phone}</p>
-        <p><b>Email:</b> ${email || 'N/A'}</p>
-        <p><b>Service:</b> ${service || 'N/A'}</p>
-        <p><b>Message:</b> ${message || 'N/A'}</p>
-      `,
-    }).catch((err) => {
-      console.error('Admin email failed:', err);
-    });
-
-    // ─── AUTO-REPLY (NON-BLOCKING) ──────────────────────────
-    if (email) {
-      transporter.sendMail({
-        from: `"Career Hatch" <${process.env.EMAIL_USER}>`,
-        to: email,
-        subject: "We've received your message ✅",
-        html: `
-          <p>Hi ${name},</p>
-          <p>Thank you for reaching out. We'll get back within 24 hours.</p>
-          <br/>
-          <p><b>Your Message:</b></p>
-          <p>${message || 'N/A'}</p>
-          <br/>
-          <p>— Career Hatch Team</p>
-        `,
-      }).catch((err) => {
-        console.error('Auto-reply failed:', err);
-      });
-    }
 
   } catch (err) {
     console.error('Contact error:', err);
 
-    // ⚠️ Only send response if not already sent
-    if (!res.headersSent) {
-      res.status(500).json({
-        success: false,
-        message: 'Server error. Please try again.',
-      });
-    }
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again.',
+    });
   }
 });
 
-// ─── GET (NO DB) ──────────────────────────────────────────
+// ─── GET (REMOVED DB LOGIC) ───────────────────────────────
+// Since no database, this route is not useful anymore
 router.get('/', async (req, res) => {
   res.json({
     success: true,
