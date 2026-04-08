@@ -12,7 +12,7 @@ app.use(cors({
   origin: [
     "http://localhost:3000",
     "https://www.paavansetu.com",
-    "https://your-vercel-app.vercel.app"
+    "https://paavansetu-frontend.vercel.app/"
   ],
   credentials: true
 }));
