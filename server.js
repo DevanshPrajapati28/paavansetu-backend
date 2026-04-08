@@ -9,7 +9,12 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: "https://www.paavansetu.com"
+  origin: [
+    "http://localhost:3000",
+    "https://www.paavansetu.com",
+    "https://your-vercel-app.vercel.app"
+  ],
+  credentials: true
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
