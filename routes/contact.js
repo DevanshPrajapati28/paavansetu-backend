@@ -3,16 +3,18 @@ const router = express.Router();
 const nodemailer = require('nodemailer');
 
 // ─── SMTP TRANSPORTER ─────────────────────────────────────
+const dns = require('dns');
+
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true, // SSL
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
-  tls: {
-    rejectUnauthorized: false,
+  lookup: (hostname, options, callback) => {
+    return dns.lookup(hostname, { family: 4 }, callback); // 🔥 FORCE IPv4
   },
 });
 // Verify transporter
